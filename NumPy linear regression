@@ -1,0 +1,82 @@
+# import libraries
+import numpy as np
+import pandas as pd 
+import matplotlib.pyplot as plt
+
+# load dataset
+df = pd.read_csv('CO2 Emissions_Canada.csv')
+
+# preprocess data
+df = df.dropna()
+
+# x is the input and y is what we are trying to predict
+# engine size is set as the input and CO2 emissions as y
+x = df["Engine Size(L)"].values
+y = df["CO2 Emissions(g/km)"].values
+
+# dont know the w and b best values yet so they should be set to 0 as default
+w = 0
+b = 0
+
+# set the learning rate
+learning_rate = 0.001
+
+# standardise data
+x_mean = np.mean(x)
+x_std = np.std(x)
+y_mean = np.mean(y)
+y_std = np.std(y)
+
+x_scaled = (x - x_mean) / x_std
+y_scaled = (y - y_mean) / y_std
+
+# making the predictions using the y hat = wx + b equation
+def prediction(w, x, b):
+    return w * x + b
+
+# function to define the loss (MSE) 
+def mse(prediction, y):
+    return np.mean((y-prediction)**2)
+
+# calculating the gradients
+def w_gradient(prediction, y, x):
+    n = len(y)
+    return (-2/n) * np.sum(x * (y - prediction))
+
+def b_gradient(prediction, y):
+    n = len(y)
+    return (-2/n) * np.sum(y - prediction)
+
+# training loop to update gradients
+epochs = 3000 # number of updates
+for i in range (epochs):
+    # make a y prediction
+    y_pred = prediction(w, x_scaled, b)
+
+    # calculate the gradients
+    # derivative of w
+    dw = w_gradient(y_pred, y_scaled, x_scaled)
+    # derivative of b
+    db = b_gradient(y_pred, y_scaled)
+
+    # update the parameters
+    w -= learning_rate * dw
+    b -= learning_rate * db
+
+    # print progress
+    if i % 100 == 0:
+        loss = mse(y_pred, y_scaled)
+        print(f"Epoch {i}: Loss = {loss:.4f}, w = {w:.4f}, b = {b:.4f}")
+
+# convert to original scale
+y_pred_original = y_pred * y_std + y_mean
+
+# visualising the results  
+plt.scatter(x, y, label="Actual Data", alpha=0.5)
+plt.plot(x, y_pred_original, color='red', label = 'Model line')
+plt.xlabel("Engine Size(L)")
+plt.ylabel("CO2 Emissions(g/km)")
+plt.title("Engine Size vs CO2 Emissions Linear Regression")
+plt.legend()
+plt.show()
+plt.savefig('plot.png')
