@@ -1,0 +1,118 @@
+# no pandas or numpy
+import csv
+
+# need to store relevant columns into a list - empty so far
+x = []
+y = []
+
+# opening the csv file 
+with open("CO2 Emissions_Canada.csv", "r") as file:
+    reader = csv.reader(file)
+    header = next(reader) # skip the header row
+
+    # find columns for engine size and co2 emissions
+    engine = header.index("Engine Size(L)")
+    co2 = header.index("CO2 Emissions(g/km)")
+
+    # loop through each row in the reader expcept header
+    for row in reader:
+        try:
+            # convert the values to a float
+            engine_size = float(row[engine])
+            co2_emissions = float(row[co2])
+            # append to the list
+            x.append(engine_size)
+            y.append(co2_emissions)
+        # if a value errror appears then it continues without crashing
+        except ValueError:
+            continue
+
+# check if it worked
+# how many data points have been loaded
+print(f"Loaded {len(x)} data points")
+# check first 5 values of x and y
+print("First 5 engine sizes:", x[:5])
+print("First 5 CO2 Emissions", y[:5])
+
+# set w and b and learning rate
+w = 0
+b = 0
+learning_rate = 0.001
+
+# make a prediction - yhat = w * x + b
+def prediction(w,x,b):
+    # store each prediction
+    y_pred = []
+    for xi in x:
+        y_hat = w * xi + b
+        y_pred.append(y_hat)
+    return y_pred
+
+# calculate mse
+def mse(y_pred, y):
+    # this is the number of points
+    n = len(y)
+    total_error = 0
+    for i in range(n):
+        loss = (y_pred[i]-y[i])**2
+        total_error += loss
+    mse = (1/n) * total_error
+    return mse
+
+# calculate the gradients 
+def gradient_w(w, y, x, b):
+    n = len(y)
+    total_error = 0
+    for i in range(n):
+        prediction = w * x[i] + b
+        error = (y[i] - prediction) * x[i]
+        total_error += error
+    gradient_w = (-2/n) * total_error
+    return gradient_w
+
+def gradient_b(w, y, x, b):
+    n = len(y)
+    total_error = 0
+    for i in range(n):
+        prediction = w * x[i] + b
+        error = (y[i] - prediction)
+        total_error += error
+    gradient_b = (-2/n) * total_error
+    return gradient_b
+
+# training loop using gradient descent 
+# how many times it updates 
+epochs = 1000
+for i in range(epochs):
+    # make a prediction
+    y_pred = prediction(w, x, b)
+
+    # calculate the gradients
+    gw = gradient_w(w, y, x, b)
+    gb = gradient_b(w, y, x, b)
+
+    # use gradient descent 
+    w -= learning_rate * gw
+    b -= learning_rate * gb
+
+    # print the loss for every 100 epochs
+    if i % 100 == 0:
+        y_pred = prediction(w, x, b)
+        loss = mse(y_pred, y)
+        print(f"Epochs {i}: Loss {loss:.4f}, w = {w:.4f}, b = {b:.4f}")
+
+
+# visualising the results  
+import matplotlib.pyplot as plt
+plt.scatter(x, y, label="Actual Data", alpha=0.5)
+plt.plot(x, y_pred, color='red', label = 'Model line')
+plt.xlabel("Engine Size(L)")
+plt.ylabel("CO2 Emissions(g/km)")
+plt.title("Engine Size vs CO2 Emissions Linear Regression")
+plt.legend()
+plt.show()
+plt.savefig('plot_no_numpy.png')
+
+
+
+
