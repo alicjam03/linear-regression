@@ -1,0 +1,55 @@
+# import libraries
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+import numpy as np
+from sklearn.metrics import mean_squared_error
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import StandardScaler
+
+# load dataset
+df = pd.read_csv("CO2 Emissions_Canada.csv")
+df = df.dropna()
+
+# speicfy x and y - .values is needed with scikitlearn to convery into numpy arrays
+X = df["Engine Size(L)"].values
+y = df["CO2 Emissions(g/km)"].values
+
+# load in scaler
+scaler_X = StandardScaler()
+scaler_y = StandardScaler()
+# fit - calculates the mean and standard deviation for each column in x
+# transform - applies the standardisation formula to each value
+x_scaled = scaler_X.fit_transform(X.reshape(-1,1))
+
+# StandardScaler expects a 2D array and y is usually a 1D array
+# the -1 in the reshape tells NumPy to figure out the dimension based on the data and the 1 represents 1 column
+# the flatten allows it to be converted back to a 1d array 
+y_scaled = scaler_y.fit_transform(y.reshape(-1,1))
+
+# load model and train
+model = LinearRegression()
+model.fit(x_scaled, y_scaled)
+
+# predict 
+y_pred_scaled = model.predict(x_scaled)
+y_pred = scaler_y.inverse_transform(y_pred_scaled.reshape(-1,1)).flatten()
+
+
+# check mse
+mse = mean_squared_error(y, y_pred)
+print(f"Final mse: {mse:.4f}, w: {model.coef_[0][0]:.4f}, b: {model.intercept_[0]:.4f}")
+
+
+# plot
+plt.scatter(X, y, label="Actual", alpha=0.5)
+plt.plot(X, y_pred, color="red", label="Predicted")
+plt.xlabel("Engine Size(L)")
+plt.ylabel("CO2 Emissions(g/km)")
+plt.legend()
+plt.show()
+plt.savefig("plot_with_libraries")
+
+
+
+
+
