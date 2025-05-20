@@ -1,73 +1,140 @@
-Linear Regression on C02 Dataset
-This project explores building a linear regression model in three different ways:
-1. Using only Python built-ins
-2. Using NumPy and Pandas
-3. Standard machine learning libraries (scikit-learn)
+# 📉 Linear Regression on CO₂ Emissions Dataset
 
-Dataset
-The data used was CO2 Emissions_Canada.csv which contains features of vehicles the project focuses on these two features:
-1. Engine Size(L) as input x
-2. CO2 Emissions (g/km) as output y
+This project explores **Linear Regression** using the _CO2 Emissions_Canada.csv_ dataset in three different implementations:
 
-Objectives:
-1. To predict CO2 emissions from engine size using linear regression
-2. Understand the math and logic behind the model
+1. ✅ **Pure Python (No Libraries)**
+2. ✅ **NumPy + Pandas**
+3. ✅ **Scikit-learn (ML Libraries)**
 
-Implementation:
-Linear Regression with Libraries
-File: libraries_linear_regression.py
-Output: plot_with_libraries.png 
+---
 
-- Uses pandas, numpy, scikit-learn
-- StandardScaler handles feature scaling
-- LinearRegression model trains and predict with no need to specify epochs
-- Easiest and fastest to implement
+## 📂 Dataset
 
-Linear Regression - NumPy and Pandas
-File: numpy_linear_regression.py
-Output: plot_only_numpy.png
+- **Source**: `CO2 Emissions_Canada.csv`
+- **Features Used**:
+  - `Engine Size (L)` → input (X)
+  - `CO2 Emissions (g/km)` → target (Y)
 
-- Uses NumPy and Pandas for data handling
-- Manually implements gradient descent
-- Uses 3000 epochs with a training loop
-- Need manual experimentation or manual early stopping to find optimal epochs
-- Great for understanding and learning
+---
 
-Linear Regression with No Libraries
-File: no_numpy_linear_regression.py
-Output: plot_no_numpy.png
+## 🎯 Project Objectives
 
-- Pure Python
-- CSV file read with csv module
-- Manual mean/standard deviation calculation
-- Loop based prediction and gradient decent with 3000 epochs
-- Reinforced deep understanding
+- Predict CO₂ emissions based on engine size.
+- Understand and compare how linear regression is implemented from scratch vs. with libraries.
+- Reinforce understanding of machine learning foundations like gradient descent and standardization.
 
-Standardization Explained
-Before training the model z-score normalisation was implemented. This ensures all values x and y are on the same scale. The average becomes 0 and the spread becomes 1. Firstly standard deviation needs to be calculated using this formula:
-![alt text](image-3.png)
+---
 
-To calculate is:
-1. Find the mean of all the values
+## 🧠 Model Implementations
+
+### 1. 💡 Linear Regression with Scikit-learn  
+**File**: `libraries_linear_regression.py`  
+**Output**: `plot_with_libraries.png`
+
+- Uses: `pandas`, `numpy`, `scikit-learn`
+- Scales features using `StandardScaler`
+- Trains using `LinearRegression()` from scikit-learn
+- ✅ No manual loop, very fast to implement
+
+---
+
+### 2. 🔧 Linear Regression with NumPy and Pandas  
+**File**: `numpy_linear_regression.py`  
+**Output**: `plot_only_numpy.png`
+
+- Uses: `NumPy`, `Pandas`
+- Implements **gradient descent manually**
+- Standardization and MSE calculated from scratch
+- Uses **3000 epochs**, adjustable
+- ✅ Great for understanding the math behind the model
+
+---
+
+### 3. 🛠️ Linear Regression with Pure Python (No Libraries)  
+**File**: `no_numpy_linear_regression.py`  
+**Output**: `plot_no_numpy.png`
+
+- No external libraries (except `csv` and `math`)
+- Manual CSV parsing, data scaling, prediction, and gradient calculation
+- Loop-based training with 3000 epochs
+- ✅ Best for reinforcing fundamentals
+
+---
+
+## 🧮 Standardization Explained
+
+Before training, features are **standardized** using **Z-score normalization** to help models converge faster and avoid bias due to scale.
+
+### 📊 Why Standardize?
+
+- Makes **mean = 0** and **std = 1**
+- Ensures features are on the same scale
+- Essential for gradient descent-based models
+
+### 🧾 Standard Deviation  
+
+Steps:
+1. Calculate the **mean**
 2. Subtract the mean from each value
-3. Square each result
-4. Sum all the squared results
-5. Divide by the number of values
+3. Square the results
+4. Sum them up
+5. Divide by number of data points
 6. Take the square root
 
-This tells us how much the data varies. We use this value to perform z-score normalisation. The formula for this is:
-![alt text](image-4.png)
+### 📈 Z-Score Normalization  
 
-To calculate this:
-1. Subtract the original value from the mean
+1. Subtract the mean from x
 2. Divide by the standard deviation
+3. This becomes x scaled
 
-Model Training and Loss
-The models aim to minise the Mean Squared Error, the formula is:
-![alt text](image-1.png)
-- w is the weight (slope)
-- b is the bias (intecrept)
-- To update the gradients a learning rate of 0.001 is used
+## 🧠 Model Training & Loss (Step-by-Step)
+
+The goal of the linear regression models is to minimize the error between predicted and actual values using **gradient descent** and the **Mean Squared Error (MSE)** loss function.
+
+---
+
+### 📉 Mean Squared Error (MSE)
+
+The MSE is a common loss function for regression problems.
 
 
+**Steps to Calculate MSE:**
 
+1. Use the current model to predict values:  
+   `ŷ = w * x + b`
+
+2. Subtract the predicted value from the actual value:  
+   `error = y - ŷ`
+
+3. Square each of the errors:  
+   `(y - ŷ)²`
+
+4. Sum all the squared errors.
+
+5. Divide by the number of values `n`:  
+   `MSE = (1/n) * Σ(y - ŷ)²`
+
+---
+
+### 🔁 Gradient Descent Update (Step-by-Step)
+
+To reduce the loss, we update the model’s parameters (`w` and `b`) using the gradients of the loss function.
+
+**Steps to Update Parameters:**
+
+1. Compute the gradients:
+
+   - Gradient with respect to weight `w`:  
+     `∂L/∂w = -(2/n) * Σ(x * (y - ŷ))`
+
+   - Gradient with respect to bias `b`:  
+     `∂L/∂b = -(2/n) * Σ(y - ŷ)`
+
+2. Multiply each gradient by the learning rate `α` (e.g., 0.001).
+
+3. Update the parameters:
+
+   - `w = w - α * ∂L/∂w`  
+   - `b = b - α * ∂L/∂b`
+
+4. Repeat this
