@@ -1,5 +1,6 @@
 # no pandas or numpy
 import csv
+import math
 
 # need to store relevant columns into a list - empty so far
 x = []
@@ -39,19 +40,30 @@ w = 0
 b = 0
 learning_rate = 0.001
 
+# standardise the data
+x_mean = sum(x)/len(x)
+x_variance = sum((xi-x_mean) ** 2 for xi in x)/len(x)
+x_std = math.sqrt(x_variance)
+x_scaled = [(xi - x_mean)/x_std for xi in x]
+  
+y_mean = sum(y)/len(y)
+y_variance = sum((yi-y_mean)**2 for yi in y)/len(y)
+y_std = math.sqrt(y_variance)
+y_scaled = [(yi-y_mean)/y_std for yi in y]
+
 # make a prediction - yhat = w * x + b
-def prediction(w,x,b):
+def prediction(w,x_scaled,b):
     # store each prediction
     y_pred = []
-    for xi in x:
+    for xi in x_scaled:
         y_hat = w * xi + b
         y_pred.append(y_hat)
     return y_pred
 
 # calculate mse
-def mse(y_pred, y):
+def mse(y_pred, y_scaled):
     # this is the number of points
-    n = len(y)
+    n = len(y_scaled)
     total_error = 0
     for i in range(n):
         loss = (y_pred[i]-y[i])**2
@@ -60,36 +72,36 @@ def mse(y_pred, y):
     return mse
 
 # calculate the gradients 
-def gradient_w(w, y, x, b):
-    n = len(y)
+def gradient_w(w, y_scaled, x_scaled, b):
+    n = len(y_scaled)
     total_error = 0
     for i in range(n):
-        prediction = w * x[i] + b
-        error = (y[i] - prediction) * x[i]
+        prediction = w * x_scaled[i] + b
+        error = (y_scaled[i] - prediction) * x_scaled[i]
         total_error += error
     gradient_w = (-2/n) * total_error
     return gradient_w
 
-def gradient_b(w, y, x, b):
-    n = len(y)
+def gradient_b(w, y_scaled, x_scaled, b):
+    n = len(y_scaled)
     total_error = 0
     for i in range(n):
-        prediction = w * x[i] + b
-        error = (y[i] - prediction)
+        prediction = w * x_scaled[i] + b
+        error = (y_scaled[i] - prediction)
         total_error += error
     gradient_b = (-2/n) * total_error
     return gradient_b
 
 # training loop using gradient descent 
 # how many times it updates 
-epochs = 1000
+epochs = 3000
 for i in range(epochs):
     # make a prediction
-    y_pred = prediction(w, x, b)
+    y_pred = prediction(w, x_scaled, b)
 
     # calculate the gradients
-    gw = gradient_w(w, y, x, b)
-    gb = gradient_b(w, y, x, b)
+    gw = gradient_w(w, y_scaled, x_scaled, b)
+    gb = gradient_b(w, y_scaled, x_scaled, b)
 
     # use gradient descent 
     w -= learning_rate * gw
@@ -97,15 +109,17 @@ for i in range(epochs):
 
     # print the loss for every 100 epochs
     if i % 100 == 0:
-        y_pred = prediction(w, x, b)
-        loss = mse(y_pred, y)
+        y_pred = prediction(w, x_scaled, b)
+        loss = mse(y_pred, y_scaled)
         print(f"Epochs {i}: Loss {loss:.4f}, w = {w:.4f}, b = {b:.4f}")
 
+# reverse predictions fot plotting
+y_pred_original = [(yp * y_std + y_mean) for yp in y_pred]
 
 # visualising the results  
 import matplotlib.pyplot as plt
 plt.scatter(x, y, label="Actual Data", alpha=0.5)
-plt.plot(x, y_pred, color='red', label = 'Model line')
+plt.plot(x, y_pred_original, color='red', label = 'Model line')
 plt.xlabel("Engine Size(L)")
 plt.ylabel("CO2 Emissions(g/km)")
 plt.title("Engine Size vs CO2 Emissions Linear Regression")

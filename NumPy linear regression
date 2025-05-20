@@ -65,11 +65,11 @@ for i in range (epochs):
 
     # print progress
     if i % 100 == 0:
-        loss = mse(y_pred, y_scaled)
+        # convert to original scale
+        y_pred_original = y_pred * y_std + y_mean 
+        loss = mse(y_pred_original, y)
         print(f"Epoch {i}: Loss = {loss:.4f}, w = {w:.4f}, b = {b:.4f}")
 
-# convert to original scale
-y_pred_original = y_pred * y_std + y_mean
 
 # visualising the results  
 plt.scatter(x, y, label="Actual Data", alpha=0.5)
@@ -79,4 +79,4 @@ plt.ylabel("CO2 Emissions(g/km)")
 plt.title("Engine Size vs CO2 Emissions Linear Regression")
 plt.legend()
 plt.show()
-plt.savefig('plot.png')
+plt.savefig('plot_only_numpy.png')
